@@ -1,0 +1,2 @@
+HTTP Status: 200
+Response: {"status":"UP","groups":["liveness","readiness"]}

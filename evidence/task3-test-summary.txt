@@ -1,0 +1,18 @@
+Task 3 - Booking Capacity Defect Regression Tests
+
+Command: mvn clean test
+Result: BUILD SUCCESS
+Tests run: 9
+Failures: 0
+Errors: 0
+Skipped: 0
+
+New regression tests:
+1. bookingExactlyAvailableInventorySucceeds
+2. bookingOneMoreThanAvailableIsRejectedWithoutChanges
+3. negativeQuantityRejectedWithoutChangingInventory
+
+Implementation correction:
+Changed the capacity validation from comparing requested quantity
+against available quantity plus one to comparing it directly against
+available quantity.

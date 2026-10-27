@@ -7,5 +7,80 @@ class BookingServiceTest {
  @Test void blankBorrowerRejected(){assertThrows(IllegalArgumentException.class,()->service.create(" ","LAPTOP01",1));}
  @Test void unknownEquipmentRejected(){assertThrows(NoSuchElementException.class,()->service.create("STU1001","UNKNOWN",1));}
  @Test void ordinaryOverbookingRejected(){assertThrows(IllegalStateException.class,()->service.create("STU1001","PROJECTOR01",6));assertEquals(4,service.getEquipment("PROJECTOR01").getAvailableQuantity());}
- @Test void cancellationRestoresInventoryOnce(){Booking b=service.create("STU1001","TABLET01",3);service.cancel(b.getId());assertEquals(8,service.getEquipment("TABLET01").getAvailableQuantity());assertThrows(IllegalStateException.class,()->service.cancel(b.getId()));}
+
+ @Test
+ void successfulCancellationRestoresInventoryAndUpdatesBookingState() {
+  Booking booking = service.create("STU1001", "TABLET01", 3);
+
+  assertEquals(5, service.getEquipment("TABLET01").getAvailableQuantity());
+  assertEquals("CONFIRMED", service.getBooking(booking.getId()).getStatus());
+
+  Booking cancelled = service.cancel(booking.getId());
+
+  assertEquals("CANCELLED", cancelled.getStatus());
+  assertEquals("CANCELLED", service.getBooking(booking.getId()).getStatus());
+  assertEquals(8, service.getEquipment("TABLET01").getAvailableQuantity());
+ }
+
+ @Test
+ void repeatedCancellationDoesNotRestoreInventoryTwice() {
+  Booking booking = service.create("STU1001", "TABLET01", 3);
+
+  service.cancel(booking.getId());
+  int inventoryAfterCancellation =
+      service.getEquipment("TABLET01").getAvailableQuantity();
+
+  assertThrows(IllegalStateException.class,
+      () -> service.cancel(booking.getId()));
+
+  assertEquals(inventoryAfterCancellation,
+      service.getEquipment("TABLET01").getAvailableQuantity());
+  assertEquals("CANCELLED", service.getBooking(booking.getId()).getStatus());
+ }
+@Test
+void cancellationRestoresInventoryOnce() {
+    Booking booking = service.create("STU1001", "TABLET01", 3);
+
+    service.cancel(booking.getId());
+
+    assertEquals(8,
+        service.getEquipment("TABLET01").getAvailableQuantity());
+}
+
+
+ @Test
+ void bookingExactlyAvailableInventorySucceeds() {
+  Booking booking = service.create("STU1001", "PROJECTOR01", 4);
+
+  assertEquals(0, service.getEquipment("PROJECTOR01").getAvailableQuantity());
+  assertEquals(4, booking.getQuantity());
+  assertEquals("CONFIRMED", service.getBooking(booking.getId()).getStatus());
+ }
+
+ @Test
+ void bookingOneMoreThanAvailableIsRejectedWithoutChanges() {
+  int availableBefore = service.getEquipment("PROJECTOR01").getAvailableQuantity();
+
+  assertThrows(IllegalStateException.class,
+      () -> service.create("STU1001", "PROJECTOR01", availableBefore + 1));
+
+  assertEquals(availableBefore,
+      service.getEquipment("PROJECTOR01").getAvailableQuantity());
+
+  assertThrows(NoSuchElementException.class,
+      () -> service.getBooking("nonexistent-booking-id"));
+ }
+
+ @Test
+ void negativeQuantityRejectedWithoutChangingInventory() {
+  int availableBefore = service.getEquipment("LAPTOP01").getAvailableQuantity();
+
+  assertThrows(IllegalArgumentException.class,
+      () -> service.create("STU1001", "LAPTOP01", -1));
+
+  assertEquals(availableBefore,
+      service.getEquipment("LAPTOP01").getAvailableQuantity());
+ }
+
+
 }

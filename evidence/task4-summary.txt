@@ -1,0 +1,24 @@
+Task 4 - Booking Cancellation (4 Marks)
+
+Implementation:
+The BookingService.cancel() method retrieves the booking,
+rejects repeated cancellation, restores the booked quantity
+to equipment inventory, and changes booking status to CANCELLED.
+
+Automated tests:
+1. successfulCancellationRestoresInventoryAndUpdatesBookingState
+2. repeatedCancellationDoesNotRestoreInventoryTwice
+
+Verification:
+- Booking status changes from CONFIRMED to CANCELLED.
+- Cancelling a booking for 3 tablets restores inventory from 5 to 8.
+- Repeated cancellation throws IllegalStateException.
+- Inventory does not increase a second time.
+- Booking remains CANCELLED after repeated cancellation.
+
+Maven test command: mvn clean test
+Tests run: 10
+Failures: 0
+Errors: 0
+Skipped: 0
+Result: BUILD SUCCESS

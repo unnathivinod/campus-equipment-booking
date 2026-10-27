@@ -1,0 +1,8 @@
+Task 3 - Booking Capacity Defect Diagnosis
+
+File: src/main/java/edu/university/equipment/BookingService.java
+Defective condition: quantity > e.getAvailableQuantity() + 1
+Root cause: Adding 1 to available inventory permits a request for one extra unit.
+Correction: Compare requested quantity directly with available inventory.
+Required rule: quantity > 0 and quantity <= available inventory.
+Safety requirement: Reject invalid requests before modifying inventory or creating bookings.
